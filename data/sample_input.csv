@@ -1,0 +1,7 @@
+raw_id,raw_year,raw_energy_mw,raw_region,raw_sector
+101,2023,15000, North_America , POWER 
+102,2024,18500, Europe , POWER
+103,2055,40000, Asia , INDUSTRIAL
+104,2025,21000, North_America,POWER
+105,   ,30000, Africa, COMMERCIAL
+106,2030,55000, South_America, POWER

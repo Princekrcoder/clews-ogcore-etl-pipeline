@@ -1,0 +1,22 @@
+# Python and environment
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.env
+
+# Pytest
+.pytest_cache/
+
+# Logs
+pipeline.log
+*.log
+
+# Outputs
+out/
+output.json
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,34 @@
+# CLEWS-OGCore ETL Pipeline Configuration
+
+validation:
+  required_columns:
+    - "raw_id"
+    - "raw_year"
+    - "raw_energy_mw"
+    - "raw_region"
+    - "raw_sector"
+  year_column: "raw_year"
+  year_range:
+    min: 2020
+    max: 2050
+
+mapping:
+  raw_id: "id"
+  raw_year: "year"
+  raw_energy_mw: "energy_gw" # Will be mapped first, then we can do unit conversion if we wanted, but note mapper logic. 
+  # Actually, transformer does unit_conversion on mapped column name. So wait, unit_conversion will target 'energy_gw'
+  raw_region: "region"
+  raw_sector: "sector"
+
+transformations:
+  unit_conversion:
+    # Converting MW to GW (factor = 0.001)
+    energy_gw:
+      factor: 0.001
+
+  convergence_simulation:
+    enabled: true
+    target_column: "energy_gw"
+    max_iterations: 15
+    tolerance: 0.005 # 0.5%
+    mock_convergence_factor: 1.05 # Simulate values stabilizing at 105% of initial
