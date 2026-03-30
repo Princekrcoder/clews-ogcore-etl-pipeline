@@ -112,7 +112,7 @@ graph TD
     subgraph "4️⃣ Egress"
         H -->|Loader| I{Schema Check?}
         I -->|Invalid| J[Abort Process]:::errorHandle
-        I -->|Valid| K[((✅ JSON Payload))]:::successNode
+        I -->|Valid| K[(✅ JSON Payload)]:::successNode
     end
 ```
 
