@@ -1,102 +1,230 @@
-# CLEWS-OGCore Production ETL Pipeline
+<div align="center">
 
-![Build Status](https://img.shields.io/badge/build-passing-brightgreen?style=flat-square)
-![Python Version](https://img.shields.io/badge/python-3.9%2B-blue?style=flat-square)
-![Architecture](https://img.shields.io/badge/architecture-modular-orange?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-passed-success?style=flat-square)
+<img src="https://capsule-render.vercel.app/api?type=waving&color=timeGradient&height=200&section=header&text=CLEWS%20%E2%86%94%20OG-Core&fontSize=60&fontAlignY=35&desc=Production%20ETL%20Data%20Pipeline&descAlignY=60&descAlign=50&animation=twinkling" width="100%" />
 
-A production-ready, highly robust data pipeline system simulating the integration and data processing steps between typical macro-energy and economic models (like CLEWS and OG-Core).
+### 🌐 Integrating Macro-Energy with Economic Modeling
+
+[![Build Status](https://img.shields.io/badge/Build-Passing-2ea44f?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/)
+[![Python Version](https://img.shields.io/badge/Python-3.9+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Code Style: Black](https://img.shields.io/badge/Code%20Style-Black-000000?style=for-the-badge&logo=prettier&logoColor=white)](https://github.com/psf/black)
+[![GSoC Target](https://img.shields.io/badge/GSoC-Target-F2A600?style=for-the-badge&logo=google&logoColor=white)](https://summerofcode.withgoogle.com/)
+
+*A highly configurable, zero-crash data transformation bridge translating raw climate/energy simulations into structured JSON payloads for robust economic analyses.*
+
+[**Explore the Docs**](#) • [**Report Bug**](#-support--feedback) • [**Request Feature**](#-support--feedback)
 
 ---
 
-## 🏗️ Architecture Overview
+</div>
 
-The pipeline executes a sequentially robust workflow driven entirely by configuration, failing fast and securely logging all discrepancies:
+<br>
+
+## ⚡ Tech Stack
+
+<div align="center">
+  <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" />
+  <img src="https://img.shields.io/badge/Pandas-150458?style=for-the-badge&logo=pandas&logoColor=white" />
+  <img src="https://img.shields.io/badge/Pytest-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white" />
+  <img src="https://img.shields.io/badge/YAML-CB171E?style=for-the-badge&logo=yaml&logoColor=white" />
+  <img src="https://img.shields.io/badge/JSON-000000?style=for-the-badge&logo=json&logoColor=white" />
+</div>
+
+<br>
+
+<details>
+<summary><b>📖 Table of Contents (Click to Expand)</b></summary>
+
+- [🎯 The Vision](#-the-vision)
+- [✨ Core Capabilities](#-core-capabilities)
+- [🏗️ Pipeline Architecture](#-pipeline-architecture)
+- [📂 Directory Structure](#-directory-structure)
+- [🚀 Quick Start](#-quick-start)
+- [💻 Usage Guide](#-usage-guide)
+- [🧪 Testing](#-testing)
+- [🤝 Contributing (GSoC)](#-contributing-gsoc)
+
+</details>
+
+---
+
+## 🎯 The Vision
+
+The **CLEWS-OGCore pipeline** solves a critical gap in macroeconomic climate modeling. Legacy pipelines often fail arbitrarily due to data inconsistencies, throwing complex tracebacks. 
+
+This robust ETL system gracefully handles anomalies—dropping out-of-bounds data, executing unit conversions (like MW to GW), running dynamic simulation loops, and rigorously enforcing JSON output schemas. **It is built to fail safely and log descriptively.**
+
+---
+
+## ✨ Core Capabilities
+
+<table>
+  <tr>
+    <td width="50%">
+      <b>⚙️ Config-Driven Execution</b><br>
+      Behavior, mappings, and limits are managed exclusively in <code>config.yaml</code>. No hardcoded logic.
+    </td>
+    <td width="50%">
+      <b>🛡️ Graceful Error Handling</b><br>
+      Custom strict error hierarchies (<code>DataValidationError</code>, <code>SchemaValidationError</code>) prevent silent failures.
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <b>🚧 Quality Fences</b><br>
+      Smart validation on <strong>ingress</strong> (CSV rows) and <strong>egress</strong> (JSON schema structures).
+    </td>
+    <td width="50%">
+      <b>🔄 Dynamic Transformation</b><br>
+      Processes mathematical text normalizations, conversions, and advanced convergence loops iteratively.
+    </td>
+  </tr>
+</table>
+
+---
+
+## 🏗️ Pipeline Architecture
+
+A secure, sequentially safe data flow from unpolished CSV inputs to perfectly structured JSON egress.
 
 ```mermaid
+%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#2b2b2b', 'edgeLabelBackground':'#111'}}}%%
 graph TD
-    A[Raw CSV Data] -->|Extractor| B(DataFrame)
-    B -->|Validator| C{Quality Check}
-    C -->|Out of Range / Missing| D[Drop Rows & Log Warning]
-    C -->|Valid| E[Mapper]
-    E -->|Map to Schema Columns| F[Transformer]
-    F -->|Unit Conversions & Cleaning| G[Transformation]
-    G -->|Convergence Simulation Loop| H[Final DataFrame]
-    H -->|Loader| I{JSON Schema Check}
-    I -->|Invalid| J[Abort: SchemaValidationError]
-    I -->|Valid| K[(Structured JSON Output)]
+    classDef errorHandle fill:#4a1515,stroke:#ff4444,stroke-width:2px,color:#fff;
+    classDef successNode fill:#154a20,stroke:#44ff66,stroke-width:2px,color:#fff;
+    classDef processNode fill:#223344,stroke:#4488ff,stroke-width:2px,color:#fff;
+
+    subgraph "1️⃣ Ingress"
+        A[📁 Raw CSV Data] -->|Extractor| B(DataFrame)
+    end
     
-    style J fill:#ff9999,stroke:#cc0000,stroke-width:2px;
-    style K fill:#99cc99,stroke:#006600,stroke-width:2px;
+    subgraph "2️⃣ Validation"
+        B -->|Validator| C{Quality Limits?}
+        C -->|Failed| D[Log Warning & Drop]:::errorHandle
+        C -->|Passed| E[Mapper]:::processNode
+    end
+    
+    subgraph "3️⃣ Transformation"
+        E -->|Map| F[Transformer]:::processNode
+        F -->|Unit Math| G[Clean & Normalise]:::processNode
+        G -->|Simulation Loop| H[Pipeline Ready DF]:::processNode
+    end
+    
+    subgraph "4️⃣ Egress"
+        H -->|Loader| I{Schema Check?}
+        I -->|Invalid| J[Abort Process]:::errorHandle
+        I -->|Valid| K[((✅ JSON Payload))]:::successNode
+    end
 ```
 
-## ✨ Core Features
+---
 
-1. **Robust Configuration (`src/config.py`)**: Defines mappings, limits, ranges, and validation criteria cleanly inside `config.yaml`.
-2. **Explicit Error Hierarchies (`src/exceptions.py`)**: Graceful crash tracking natively isolating `DataValidationError`, `DataExtractionError`, etc.
-3. **Data Quality Fences (`src/validator.py` & `src/schema.py`)**: Ingress limits (drops bad CSV rows) and egress JSON schema tests.
-4. **Dynamic Transformation (`src/transformer.py`)**: Features string normalizations, unit-of-measure conversions (MW to GW), and an iterative mathematical convergence simulation.
-5. **Configurable Extractor (`src/extractor.py`)**: Seamlessly handles mapping single `.csv` targets or merging entire data directories on the fly.
+## 📂 Directory Structure
 
-## 📂 Project Structure
+Clean segregation of configurations, tests, and core execution modules.
 
 ```text
 clews-ogcore-etl-pipeline/
+├── 📄 config.yaml             # 🧠 Master rules engine
+├── 🐍 requirements.txt        # 📦 Dependencies
+├── 🚀 main.py                 # 🎯 CLI Entry Point
+├── 📘 README.md               # 📖 You are here
 │
-├── config.yaml             # Master configuration instructions
-├── requirements.txt        # Python dependency manifest
-├── main.py                 # Core CLI entry point
-├── README.md               # User documentation
+├── 📁 src/                    # Core Modules
+│   ├── config.py              # YAML constraints parser
+│   ├── exceptions.py          # Custom ETLError routing
+│   ├── extractor.py           # Robust CSV chunk parsing
+│   ├── validator.py           # Pre-ETL barrier constraints
+│   ├── mapper.py              # Column mapping logic
+│   ├── transformer.py         # Physics / Simulation engine
+│   ├── schema.py              # System exit-point structural typing
+│   └── logger.py              # Rotating logging thread
 │
-├── src/                    # Core Execution Modules
-│   ├── config.py           # Configuration parser and structural validtor
-│   ├── exceptions.py       # Custom ETLError routing
-│   ├── extractor.py        # I/O CSV data extraction class
-│   ├── validator.py        # Pre-execution limits and data constraints
-│   ├── mapper.py           # Input -> Output column translation logic
-│   ├── transformer.py      # Main physics and mathematical convergence simulation
-│   ├── schema.py           # Output structural type checking
-│   └── logger.py           # Rotating system/log persistence layer
+├── 📁 data/                   # Mock Datasets
+│   └── 📊 sample_input.csv    
 │
-├── data/                   # Input Examples
-│   └── sample_input.csv    # Mock energy/economic simulation output
-│
-└── tests/                  # Integrity Pytests
+└── 📁 tests/                  # Integrity Assurance
     ├── test_validator.py
     └── test_transformer.py
 ```
 
-## 🛠️ Setup Instructions
+---
 
-**1.** Verify Python version (3.9+). 
-**2.** Initialize a virtual environment via `venv`:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-**3.** Install Requirements:
-   ```bash
-   pip install -r requirements.txt
-   ```
+## 🚀 Quick Start
 
-## 💻 Usage & CLI Guide
-
-The pipeline executes through `main.py` utilizing standard argument parsers, catching errors upstream to prevent arbitrary tracebacks.
+Ensure you have **Python 3.9+** and **Git** active on your system.
 
 ```bash
-python main.py --input data/ --output out/output.json --config config.yaml --log-level INFO
+# 1. Clone the repository
+git clone https://github.com/Princekrcoder/clews-ogcore-etl-pipeline.git
+cd clews-ogcore-etl-pipeline
+
+# 2. Boot up a virtual environment
+python -m venv venv
+
+# Activate (Windows)
+venv\Scripts\activate
+# Activate (Mac/Linux)
+source venv/bin/activate
+
+# 3. Pull required packages
+pip install -r requirements.txt
 ```
 
-### Advanced Arguments
-- `--input` : Target `data.csv` or a folder path like `data/`.
-- `--output` : Destination path for successfully validated payload (e.g., `out/results.json`).
-- `--config` : The `config.yaml` target defining variables.
-- `--log-level` : Choose from `DEBUG`, `INFO`, `WARNING`, `ERROR` to manipulate the console print stream and the written `pipeline.log`.
+---
+
+## 💻 Usage Guide
+
+The pipeline abstracts its complexity behind a sleek CLI interface. Errors are securely caught and written to `pipeline.log` instead of crashing your terminal.
+
+```bash
+python main.py \
+  --input data/ \
+  --output out/results.json \
+  --config config.yaml \
+  --log-level INFO
+```
+
+### Argument Reference
+
+| Flag | Required | Default | Purpose |
+| :--- | :---: | :--- | :--- |
+| `--input` | ✅ | `None` | Path to `data.csv` OR a folder directory of multiple CSVs. |
+| `--output` | ✅ | `None` | Endpoint `.json` destination. |
+| `--config` | ❌ | `config.yaml` | The master YAML logic configuration path. |
+| `--log-level`| ❌ | `INFO` | Switch between `DEBUG`, `INFO`, `WARNING`, `ERROR` traces. |
+
+---
 
 ## 🧪 Testing
 
-The codebase includes `pytest` suites securing the fundamental computational rules inside transformations and missing-column validations.
+We rely on Pytest for mathematical stability. Run the suite to ensure data integrity limits haven't been compromised.
 
 ```bash
-pytest tests/
+# Execute the entire suite
+pytest tests/ -v
 ```
+
+---
+
+## 🤝 Contributing (GSoC)
+
+> **Google Summer of Code contributors are highly welcomed!** 
+
+To make your mark, stick to these standards:
+
+1. **Fork** our codebase.
+2. **Branch out** (`git checkout -b feature/EpicEnhancement`).
+3. **Commit** changes (`git commit -m 'feat: Add EpicEnhancement'`).
+4. **Push** upstream (`git push origin feature/EpicEnhancement`).
+5. **Open** a Pull Request against `main`.
+
+**Before opening a PR:**
+- Run `black .` to ensure Python formatting symmetry.
+- Confirm all local `pytest` modules pass `100%`.
+
+---
+
+<div align="center">
+  <b>Architected for the Open Source Climate & Economic Modeling Community.</b><br>
+  <i>Built with ✨ Python ✨</i>
+</div>
